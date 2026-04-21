@@ -68,6 +68,6 @@ if __name__ == "__main__":
     ax.set_title("8 Gaussian clusters on a circle  (radius≈2, std≈0.1, N=10 000)")
     ax.set_xlabel("x"); ax.set_ylabel("y")
     plt.tight_layout()
-    plt.savefig("/Users/ameygupta/clusters.png", dpi=150)
+    plt.savefig("/Users/ameygupta/sop_task/images/clusters.png", dpi=150)
     plt.show()
     print("Saved")
