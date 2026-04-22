@@ -57,3 +57,28 @@ Samples plot → /Users/ameygupta/sop_task/images/ddpm_samples.png
 
 ## The DDPM unguided sampling 
 ![Description](images/ddpm_samples.png)
+
+
+## Output of verifiers.py
+
+```bash
+log_value      : torch.Size([16])  min=-2.353  max=-0.032
+grad_log_value : torch.Size([16, 2])
+closed-form == autograd 
+
+GaussianMixtureVerifier: 
+GaussianMixtureVerifier(K=8, std=0.1)
+log_value : torch.Size([16])  min=-199.828  max=-1.637
+grad_log_value : torch.Size([16, 2])
+closed-form == autograd
+
+log_value sanity: centres vs random :
+At cluster centres : 0.000  (should be HIGH)
+At random points   : -492.291  (should be LOWER)
+log_value higher at modes
+
+grad sanity: gradient points toward nearest centre: 
+x         = [2.5, 0.0]
+∇log p(x) = [-50.0, -0.0]  (should point toward [2, 0])
+gradient direction correct
+```
