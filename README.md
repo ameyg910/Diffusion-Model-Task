@@ -44,6 +44,9 @@ Loss curve  → /Users/ameygupta/sop_task/images/ddpm_loss.png
 Checkpoint  → /Users/ameygupta/sop_task/images/ddpm_model.pt
 ```
 
+## The Loss Curve generated from diffusion.py
+![Description](images/ddpm_loss.png)
+
 ## Output of the 2nd part of diffusion.py (after implement unguided sampling)
 
 ```bash
@@ -51,3 +54,6 @@ Running reverse diffusion (2 000 samples) ...
 Generated   : torch.Size([2000, 2])
 Samples plot → /Users/ameygupta/sop_task/images/ddpm_samples.png
 ```
+
+## The DDPM unguided sampling 
+![Description](images/ddpm_samples.png)
