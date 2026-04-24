@@ -154,6 +154,84 @@ class GaussianMixtureVerifier(Verifier):
         return (f"GaussianMixtureVerifier("
                 f"K={self.K}, std={self.std})")
 
+class HalfPlaneVerifier(Verifier):
+    """
+    Linear verifier that prefers the right half-plane.
+ 
+    Log-density:
+        log p(x) = x[axis] / temperature
+
+ 
+    Gradient (closed-form, constant)
+ 
+    Parameters:
+    dim: dimensionality of the input
+    axis: which coordinate to prefer 
+    temperature: scale of the log-density  (lower temperature → sharper preference for the right side)
+    """
+ 
+    def __init__(
+        self,
+        dim:         int   = 2,
+        axis:        int   = 0,
+        temperature: float = 1.0,
+    ):
+        assert 0 <= axis < dim, f"axis {axis} out of range for dim {dim}"
+        assert temperature > 0, "temperature must be positive"
+        self.dim         = dim
+        self.axis        = axis
+        self.temperature = temperature
+ 
+        # pre-build the constant gradient vector  e_axis / temperature
+        _grad = torch.zeros(dim)
+        _grad[axis] = 1.0 / temperature
+        self._grad = _grad                   
+ 
+    def log_value(self, x: torch.Tensor) -> torch.Tensor:
+        return x[..., self.axis] / self.temperature
+ 
+    def grad_log_value(self, x: torch.Tensor) -> torch.Tensor:
+        return self._grad.expand_as(x) # broadcast to match batch shape
+ 
+    def __repr__(self) -> str:
+        direction = ["right", "up"][self.axis] if self.dim == 2 else f"axis={self.axis}"
+        return (f"HalfPlaneVerifier("
+                f"dim={self.dim}, axis={self.axis}, "
+                f"temperature={self.temperature})  "
+                f"# prefers {direction}")
+    
+class TargetPointVerifier(Verifier):
+    """
+    Verifier that prefers points close to a single target location.
+ 
+ 
+    This is the log of an isotropic Gaussian centred at `target`, so:
+      - x exactly at the target scores highest  (0 before the constant)
+      - score decreases smoothly as x moves away
+      - σ controls how sharp the preference is:
+          small σ → tight peak, large σ → gentle hill
+ 
+    Gradient (closed-form, points toward target)
+    """
+ 
+    def __init__(self, target: torch.Tensor, sigma: float = 1.0):
+        assert sigma > 0, "sigma must be positive"
+        self.target = target.float()   # [D]
+        self.sigma  = sigma
+ 
+    def log_value(self, x: torch.Tensor) -> torch.Tensor:
+        diff = x - self.target                        
+        return -(diff ** 2).sum(dim=-1) / (2 * self.sigma ** 2)
+ 
+    def grad_log_value(self, x: torch.Tensor) -> torch.Tensor:
+        return (self.target - x) / (self.sigma ** 2)
+ 
+    def __repr__(self) -> str:
+        return (f"TargetPointVerifier("
+                f"target={self.target.tolist()}, sigma={self.sigma})")
+ 
+ 
+
  
 if __name__ == "__main__":
     torch.manual_seed(0)
@@ -211,3 +289,98 @@ if __name__ == "__main__":
     print(f"∇log p(x) = {g.squeeze().tolist()}  (should point toward [2, 0])")
     assert g[0, 0] < 0, "x-component of grad should be negative (push left toward mode)"
     print("gradient direction correct")
+
+    print("\nHalfPlaneVerifier:")
+    hpv = HalfPlaneVerifier(dim=2, axis=0, temperature=1.0)
+    print(hpv)
+ 
+    # log_value: bigger x → bigger score
+    x_left   = torch.tensor([[-3.0, 0.0], [-1.0, 0.0]])
+    x_right  = torch.tensor([[ 1.0, 0.0], [ 3.0, 0.0]])
+    lv_left  = hpv.log_value(x_left)
+    lv_right = hpv.log_value(x_right)
+    print(f"log_value(x_left)  = {lv_left.tolist()}   ← should be low")
+    print(f"log_value(x_right) = {lv_right.tolist()}  ← should be high")
+    assert (lv_right > lv_left).all(), "right side must score higher than left"
+    print("bigger x → better")
+ 
+    # gradient: constant vector pointing right, for ANY input
+    x_batch = torch.randn(B, D) * 10  # wildly scattered points
+    grad    = hpv.grad_log_value(x_batch)  # [B, 2]
+    print(f"\ngrad_log_value shape : {grad.shape}")
+    print(f"gradient (first 4 rows):\n{grad[:4]}")
+ 
+    # every row must be exactly [1, 0] (e_axis / temperature)
+    expected = torch.tensor([1.0, 0.0]).expand(B, -1)
+    assert torch.allclose(grad, expected), "gradient is not constant [1, 0]"
+    print("gradient is constant [1, 0] for all inputs")
+ 
+    # gradient always points right (positive x-component, zero y-component)
+    assert (grad[:, 0] > 0).all(),  "x-component must be positive (points right)"
+    assert (grad[:, 1] == 0).all(), "y-component must be zero"
+    print("gradient always points right")
+ 
+    # closed-form == autograd
+    glv_auto = Verifier.grad_log_value(hpv, x_batch)
+    assert torch.allclose(grad, glv_auto, atol=1e-5), "closed-form != autograd"
+    print("closed-form == autograd")
+ 
+    # temperature scaling
+    hpv2 = HalfPlaneVerifier(dim=2, axis=0, temperature=0.5)
+    grad2 = hpv2.grad_log_value(x_batch)
+    assert torch.allclose(grad2[:, 0], torch.full((B,), 2.0)), \
+        "temperature=0.5 should double gradient magnitude"
+    print("temperature scaling correct")
+
+    print("\n TargetPointVerifier:")
+    target = torch.tensor([2.0, 0.0])  # cluster 0 centre on the circle
+    tpv    = TargetPointVerifier(target=target, sigma=1.0)
+    print(tpv)
+ 
+    # closer → better log_value
+    x_near = torch.tensor([[2.1,  0.0], [2.0,  0.1]])   # very close to target
+    x_far  = torch.tensor([[5.0,  4.0], [-3.0, -3.0]])  # far from target
+    lv_near = tpv.log_value(x_near)
+    lv_far  = tpv.log_value(x_far)
+    print(f"log_value near target : {lv_near.tolist()}  ← high")
+    print(f"log_value far  target : {lv_far.tolist()}  ← low")
+    assert (lv_near > lv_far).all(), "closer points must score higher"
+    print("closer → better")
+ 
+    # log_value is maximised exactly at the target (should be 0)
+    lv_at_target = tpv.log_value(target.unsqueeze(0))
+    assert torch.allclose(lv_at_target, torch.zeros(1)), \
+        f"log_value at target should be 0, got {lv_at_target.item()}"
+    print(f"log_value at target = {lv_at_target.item():.4f}  (max = 0)")
+ 
+    # gradient points toward the target from any position
+    x_batch = torch.randn(B, D) * 3 # random points scattered around
+    grad    = tpv.grad_log_value(x_batch)   
+ 
+    # vector from x to target = (target - x) — must be parallel & same-dir as grad
+    to_target = target - x_batch             
+    dot = (grad * to_target).sum(dim=-1) # positive iff pointing toward target
+    assert (dot >= 0).all(), "gradient must point toward target"
+    print(f"gradient · (target - x) ≥ 0 for all {B} random points")
+ 
+    # gradient is zero exactly at the target
+    grad_at_target = tpv.grad_log_value(target.unsqueeze(0))
+    assert torch.allclose(grad_at_target, torch.zeros(1, D), atol=1e-6), \
+        "gradient at target must be zero"
+    print("gradient = [0, 0] at target")
+ 
+    # magnitude grows with distance
+    x_close = target + torch.tensor([[0.1, 0.0]])
+    x_away  = target + torch.tensor([[2.0, 0.0]])
+    mag_close = tpv.grad_log_value(x_close).norm()
+    mag_away  = tpv.grad_log_value(x_away).norm()
+    assert mag_away > mag_close, "further away → stronger gradient pull"
+    print(f"‖grad‖ close={mag_close:.3f}  far={mag_away:.3f}  (further → stronger)")
+ 
+    # closed-form == autograd
+    glv_auto = Verifier.grad_log_value(tpv, x_batch)
+    assert torch.allclose(grad, glv_auto, atol=1e-5), "closed-form != autograd"
+    print("closed-form == autograd")
+ 
+    print("\nAll verifier checks passed.")
+ 

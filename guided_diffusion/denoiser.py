@@ -7,8 +7,7 @@ class SinusoidalTimeEmbedding(nn.Module):
     """
     Maps a scalar timestep t  →  vector of shape (time_emb_dim,).
 
-    Parameters
-    ----------
+    Parameters:
     time_emb_dim : embedding dimension  (must be even)
     """
 
@@ -19,12 +18,10 @@ class SinusoidalTimeEmbedding(nn.Module):
 
     def forward(self, t: torch.Tensor) -> torch.Tensor:
         """
-        Parameters
-        ----------
+        Parameters:
         t : LongTensor  [B]   – 0-indexed timesteps
 
-        Returns
-        -------
+        Returns:
         emb : FloatTensor  [B, time_emb_dim]
         """
         device = t.device
@@ -71,13 +68,11 @@ class MLPDenoiser(nn.Module):
 
     def forward(self, x: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
         """
-        Parameters
-        ----------
+        Parameters:
         x : FloatTensor  [B, input_dim] 
         t : LongTensor   [B]    
 
-        Returns
-        -------
+        Returns:
         FloatTensor  [B, input_dim] (predicted noise)
         """
         t_emb = self.time_mlp(t)               # [B, time_emb_dim]
