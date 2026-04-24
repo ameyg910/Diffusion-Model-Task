@@ -172,7 +172,7 @@ Backend: POT (exact)
  ![Description](images/exp2_weight_sweep.png)
 
 ## Exp3:
- ![Description](images/exp3_compilance_vs_weight.png)
+ ![Description](images/exp3_compliance_vs_weight.png)
 
 ## Exp4:
  ![Description](images/exp4_diversity_vs_weight.png)
