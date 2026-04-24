@@ -162,3 +162,23 @@ Backend: POT (exact)
 
  All metrics checks passed.
  ```
+
+ ### Resulting Images of the 6 experiments conducted in notebooks/01_toy_experiments.ipynb
+
+## Exp1:
+ ![Description](images/exp1_unguided.png)
+
+## Exp2:
+ ![Description](images/exp2_weight_sweep.png)
+
+## Exp3:
+ ![Description](images/exp3_compilance_vs_weight.png)
+
+## Exp4:
+ ![Description](images/exp4_diversity_vs_weight.png)
+
+## Exp5:
+ ![Description](images/exp5_pareto.png)
+
+## Exp6:
+ ![Description](images/exp6_two_verifiers_grid.png)
