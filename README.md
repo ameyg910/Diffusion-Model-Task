@@ -114,3 +114,51 @@ closed-form == autograd
 
 All verifier checks passed.
 ```
+
+## Output of guidance.py
+
+```bash
+Loaded checkpoint (2-D model)
+HalfPlaneVerifier guidance (w=0 vs w=10)
+sampling w=0
+sampling w=10
+mean x | w=0: -0.003   w=10: 3.257
+points shift right with guidance
+Saved → /Users/ameygupta/sop_task/images/guidance_halfplane.png
+
+TargetPointVerifier guidance (w=0 vs w=10)
+sampling w=0
+sampling w=10
+mean distance to target | w=0: 2.531   w=10: 0.106
+points move closer to target with guidance
+Saved → /Users/ameygupta/sop_task/images/guidance_targetpoint.png
+
+All guidance checks passed
+```
+
+## Output of metrics.py
+
+```bash
+compliance_rate
+perfect samples   right-half: 0.478
+right-only        right-half: 0.874
+noise             right-half: 0.495
+
+mode_coverage
+perfect samples  coverage: 1.000
+right-only       coverage: 0.988
+noise samples    coverage: 1.000
+
+modes_covered
+perfect samples  modes covered: 8 / 8
+right-only       modes covered: 4 / 8
+
+wasserstein_2d
+W2(perfect, perfect)       = 0.0000
+W2(perfect, shifted)       = 3.0000
+W2(perfect, noise)         = 1.4266
+
+Backend: POT (exact)
+
+ All metrics checks passed.
+ ```
