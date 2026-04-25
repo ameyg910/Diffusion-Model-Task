@@ -182,3 +182,59 @@ Backend: POT (exact)
 
 ## Exp6:
  ![Description](images/exp6_two_verifiers_grid.png)
+
+
+ ## Output of tests (running pytest tests/-v):
+
+```bash
+ ====================================================================== test session starts ======================================================================
+platform darwin -- Python 3.13.5, pytest-9.0.3, pluggy-1.6.0 -- /Users/ameygupta/sop_task/sop_task/bin/python3.13
+cachedir: .pytest_cache
+rootdir: /Users/ameygupta/sop_task
+collected 42 items                                                                                                                                              
+
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_verifiers_equals_unguided PASSED                                        [  2%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_vs_active_verifier_differ PASSED                                        [  4%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_full_loop_empty_verifiers_deterministic PASSED                                            [  7%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_full_loop_empty_matches_w0 PASSED                                                         [  9%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[0] PASSED                                          [ 11%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[1] PASSED                                          [ 14%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[250] PASSED                                        [ 16%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[499] PASSED                                        [ 19%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[500] PASSED                                        [ 21%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[750] PASSED                                        [ 23%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[998] PASSED                                        [ 26%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_single_step_empty_across_all_timesteps[999] PASSED                                        [ 28%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_output_shape_preserved PASSED                                                             [ 30%]
+tests/test_guidance.py::TestGuidedEqualsUnguidedWhenEmpty::test_multiple_verifiers_differ_from_empty PASSED                                               [ 33%]
+tests/test_schedule.py::TestScheduleTensors::test_length PASSED                                                                                           [ 35%]
+tests/test_schedule.py::TestScheduleTensors::test_betas_bounds PASSED                                                                                     [ 38%]
+tests/test_schedule.py::TestScheduleTensors::test_betas_endpoints PASSED                                                                                  [ 40%]
+tests/test_schedule.py::TestScheduleTensors::test_betas_monotonically_increasing PASSED                                                                   [ 42%]
+tests/test_schedule.py::TestScheduleTensors::test_alphas_equals_one_minus_betas PASSED                                                                    [ 45%]
+tests/test_schedule.py::TestScheduleTensors::test_alphas_bounds PASSED                                                                                    [ 47%]
+tests/test_schedule.py::TestScheduleTensors::test_alphas_cumprod_is_cumulative_product PASSED                                                             [ 50%]
+tests/test_schedule.py::TestScheduleTensors::test_alphas_cumprod_monotonically_decreasing PASSED                                                          [ 52%]
+tests/test_schedule.py::TestScheduleTensors::test_alphas_cumprod_starts_near_one PASSED                                                                   [ 54%]
+tests/test_schedule.py::TestScheduleTensors::test_alphas_cumprod_ends_near_zero PASSED                                                                    [ 57%]
+tests/test_schedule.py::TestScheduleTensors::test_alphas_cumprod_strictly_positive PASSED                                                                 [ 59%]
+tests/test_schedule.py::TestQSample::test_output_shape_preserved PASSED                                                                                   [ 61%]
+tests/test_schedule.py::TestQSample::test_output_shape_arbitrary_dims PASSED                                                                              [ 64%]
+tests/test_schedule.py::TestQSample::test_t0_output_close_to_x0 PASSED                                                                                    [ 66%]
+tests/test_schedule.py::TestQSample::test_tmax_output_is_near_pure_noise PASSED                                                                           [ 69%]
+tests/test_schedule.py::TestQSample::test_mean_matches_closed_form PASSED                                                                                 [ 71%]
+tests/test_schedule.py::TestQSample::test_variance_matches_closed_form PASSED                                                                             [ 73%]
+tests/test_schedule.py::TestQSample::test_reproducible_with_same_seed PASSED                                                                              [ 76%]
+tests/test_schedule.py::TestQSample::test_different_seeds_differ PASSED                                                                                   [ 78%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[0] PASSED                                                                                [ 80%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[1] PASSED                                                                                [ 83%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[100] PASSED                                                                              [ 85%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[499] PASSED                                                                              [ 88%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[500] PASSED                                                                              [ 90%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[750] PASSED                                                                              [ 92%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[998] PASSED                                                                              [ 95%]
+tests/test_schedule.py::TestQSample::test_valid_at_all_timesteps[999] PASSED                                                                              [ 97%]
+tests/test_schedule.py::TestQSample::test_interpolation_between_clean_and_noise PASSED                                                                    [100%]
+
+====================================================================== 42 passed in 1.59s =======================================================================
+```
